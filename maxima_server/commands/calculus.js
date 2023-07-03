@@ -1,6 +1,8 @@
 const { exec } = require("child_process");
 const moment = require("moment");
 
+//req format: {"function":string, "variable":string, "at":string, ["dir":string]}
+//function: f(x), variable:x, dir:plus/minus
 function limit(req, res) {
   let func,
     variable,
@@ -57,6 +59,8 @@ function limit(req, res) {
   });
 }
 
+//req format {"function": string, "variable": string, "depth": stringInt}
+//function: f(x), variable:x, depth:1
 function diff(req, res) {
   let func,
     variable,
@@ -115,6 +119,8 @@ function diff(req, res) {
   });
 }
 
+//req format {"function": string, "variable": string, ["a": string], ["b": string]}
+//function:f(x), variable:x, a:0, b:inf
 function integrate(req, res) {
   let func,
     variable,
