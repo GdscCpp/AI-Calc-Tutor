@@ -3,7 +3,7 @@
 const express = require("express");
 const app = express();
 const bodyParser = require("body-parser");
-const { integrate, diff, limit } = require("./commands/calculus");
+const { integrate, diff, limit } = require("./commands/maxima");
 const port = 3000;
 
 let jsonParser = bodyParser.json();
