@@ -26,13 +26,16 @@ def contains_dont_know(rule):
     if isinstance(rule, DontKnowRule):
         return True
     else:
-        for val in rule._asdict().values():
-            if isinstance(val, tuple):
-                if contains_dont_know(val):
-                    return True
-            elif isinstance(val, list):
-                if any(contains_dont_know(i) for i in val):
-                    return True
+        sub = rule
+        count = 0
+
+        #prevents infinite loop for ReciprocalRule
+        while hasattr(sub,'substep') and count > 100:
+            if isinstance(sub, DontKnowRule): 
+                return True
+            sub = rule.substep
+            count += 1
+    
     return False
 
 def filter_unknown_alternatives(rule):
@@ -40,7 +43,7 @@ def filter_unknown_alternatives(rule):
         alternatives = list([r for r in rule.alternatives if not contains_dont_know(r)])
         if not alternatives:
             alternatives = rule.alternatives
-        return AlternativeRule(alternatives, rule.context, rule.symbol)
+        return AlternativeRule(rule.integrand, rule.variable, alternatives)
     return rule
 
 class IntegralPrinter(object):
@@ -83,6 +86,7 @@ class IntegralPrinter(object):
             print(repr(rule))
 
         #TODO: add piecewiseRule function
+        #TODO: add SqrtQuadraticRule
 
     def print_Constant(self, rule):
         print("The integral of a constant is the constant "
@@ -178,52 +182,49 @@ class IntegralPrinter(object):
         self.print_rule(rule.second_step)
 
     def print_CyclicParts(self, rule):
-        with self.new_step():
-            self.append("Use integration by parts, noting that the integrand"
-                        " eventually repeats itself.")
+        print("Use integration by parts, noting that the integrand"
+                    " eventually repeats itself.")
 
-            u, v, du, dv = [sympy.Function(f)(rule.symbol) for f in 'u v du dv'.split()]
-            current_integrand = rule.context
-            total_result = sympy.S.Zero
-            with self.new_level():
+        u, v, du, dv = [sympy.Function(f)(rule.variable) for f in 'u v du dv'.split()]
+        current_integrand = rule.integrand
+        total_result = sympy.S.Zero
+      
+        sign = 1
+        for rl in rule.parts_rules:      
+            print("For the integrand {}:".format(latex(current_integrand)))
+            print("Let {} and let {}.".format(
+                latex(sympy.Eq(u, rl.u)),
+                latex(sympy.Eq(dv, rl.dv))
+            ))
 
-                sign = 1
-                for rl in rule.parts_rules:
-                    with self.new_step():
-                        self.append("For the integrand {}:".format(self.format_math(current_integrand)))
-                        self.append("Let {} and let {}.".format(
-                            self.format_math(sympy.Eq(u, rl.u)),
-                            self.format_math(sympy.Eq(dv, rl.dv))
-                        ))
+            v_f, du_f = manualintegrate(rl.v_step.integrand, rl.v_step.variable), rl.u.diff(rule.variable)
 
-                        v_f, du_f = manualintegrate(rl.v_step), rl.u.diff(rule.symbol)
+            total_result += sign * rl.u * v_f
+            current_integrand = v_f * du_f
 
-                        total_result += sign * rl.u * v_f
-                        current_integrand = v_f * du_f
-
-                        self.append("Then {}.".format(
-                            self.format_math(
-                                sympy.Eq(
-                                    sympy.Integral(rule.context, rule.symbol),
-                                    total_result - sign * sympy.Integral(current_integrand, rule.symbol)))
-                        ))
-                        sign *= -1
-                with self.new_step():
-                    self.append("Notice that the integrand has repeated itself, so "
-                                "move it to one side:")
-                    self.append("{}".format(
-                        self.format_math_display(sympy.Eq(
-                            (1 - rule.coefficient) * sympy.Integral(rule.context, rule.symbol),
-                            total_result
-                        ))
-                    ))
-                    self.append("Therefore,")
-                    self.append("{}".format(
-                        self.format_math_display(sympy.Eq(
-                            sympy.Integral(rule.context, rule.symbol),
-                            manualintegrate(rule)
-                        ))
-                    ))
+            print("Then {}.".format(
+                latex(
+                    sympy.Eq(
+                        sympy.Integral(rule.integrand, rule.variable),
+                        total_result - sign * sympy.Integral(current_integrand, rule.variable)))
+            ))
+            sign *= -1
+      
+        print("Notice that the integrand has repeated itself, so "
+                    "move it to one side:")
+        print("{}".format(
+            latex(sympy.Eq(
+                (1 - rule.coefficient) * sympy.Integral(rule.integrand, rule.variable),
+                total_result
+            ))
+        ))
+        print("Therefore,")
+        print("{}".format(
+            print(sympy.Eq(
+                sympy.Integral(rule.integrand, rule.variable),
+                manualintegrate(rule.integrand, rule.variable)
+            ))
+        ))
 
 
     def print_Trig(self, rule):
@@ -252,80 +253,44 @@ class IntegralPrinter(object):
                     manualintegrate(rule.integrand, rule.variable))))
 
     def print_Log(self, rule):
-        with self.new_step():
-            self.append("The integral of {} is {}.".format(
-                self.format_math(1 / rule.func),
-                self.format_math(manualintegrate(rule))
-            ))
+        print("The integral of {} is {}.".format(
+            latex(1 / rule.integrand),
+            latex(manualintegrate(rule.integrand, rule.variable))
+        ))
+       
 
     def print_Arctan(self, rule):
-        with self.new_step():
-            self.append("The integral of {} is {}.".format(
-                self.format_math(1 / (1 + rule.symbol ** 2)),
-                self.format_math(manualintegrate(rule))
-            ))
+        print("The integral of {} is {}.".format(
+            latex(1 / (1 + rule.variable ** 2)),
+            latex(manualintegrate(rule.integrand, rule.variable))
+        ))
 
     def print_Rewrite(self, rule):
-            self.append("Rewrite the integrand:")
-            self.append(self.format_math_display(
-                sympy.Eq(rule.context, rule.rewritten)))
+            print("Rewrite the integrand:")
+            print(latex(
+                sympy.Eq(rule.integrand, rule.rewritten)))
             self.print_rule(rule.substep)
 
     def print_DontKnow(self, rule):
-        with self.new_step():
-            self.append("Don't know the steps in finding this integral.")
-            self.append("But the integral is")
-            self.append(self.format_math_display(sympy.integrate(rule.context, rule.symbol)))
+        print("Don't know the steps in finding this integral.")
+        print("But the integral is")
+        print(latex(sympy.integrate(rule.integrand, rule.variable)))
 
 
     def print_Alternative(self, rule):
         # TODO: make more robust
         rule = filter_unknown_alternatives(rule)
-
+    
         if len(rule.alternatives) == 1:
             self.print_rule(rule.alternatives[0])
             return
 
-        if rule.context.func in self.alternative_functions_printed:
+        if rule.func in self.alternative_functions_printed:
             self.print_rule(rule.alternatives[0])
         else:
-            self.alternative_functions_printed.add(rule.context.func)
-            with self.new_step():
-                self.append("There are multiple ways to do this integral.")
-                for index, r in enumerate(rule.alternatives):
-                    with self.new_collapsible():
-                        self.append_header("Method #{}".format(index + 1))
-                        with self.new_level():
-                            self.print_rule(r)
+            self.alternative_functions_printed.add(rule.func)
+            print("There are multiple ways to do this integral.")
+            for index, r in enumerate(rule.alternatives):
+                    print("Method #{}".format(index + 1))
+                    self.print_rule(r)
 
-    def format_math_constant(self, math):
-        return '<script type="math/tex; mode=display">{}</script>'.format(
-            sympy.latex(math) + r'+ \mathrm{constant}')
-
-    def finalize(self):
-        rule = filter_unknown_alternatives(self.rule)
-        answer = manualintegrate(rule)
-        if answer:
-            simp = sympy.simplify(sympy.trigsimp(answer))
-            if simp != answer:
-                answer = simp
-                with self.new_step():
-                    self.append("Now simplify:")
-                    self.append(self.format_math_display(simp))
-            with self.new_step():
-                self.append("Add the constant of integration:")
-                self.append(self.format_math_constant(answer))
-        self.lines.append('</ol>')
-        self.lines.append('<hr/>')
-        self.level = 0
-        self.append('The answer is:')
-        self.append(self.format_math_constant(answer))
-        return '\n'.join(self.lines)
-
-def print_html_steps(function, symbol):
-    rule = integral_steps(function, symbol)
-    
-    if isinstance(rule, DontKnowRule):
-        raise ValueError("Cannot evaluate integral")
-    a = LaTeXPrinter()
-    return a.finalize()
