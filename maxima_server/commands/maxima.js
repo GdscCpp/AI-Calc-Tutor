@@ -8,6 +8,7 @@ function limit(req, res) {
     variable,
     at,
     dir = "";
+    
   //check req format
   if (req.body && req.body.function && req.body.variable && req.body.at) {
     func = req.body.function;
@@ -38,6 +39,7 @@ function limit(req, res) {
   exec(cmd, (err, data, stderr) => {
     //trim off unnecessary output
     let response = data.split("\n");
+    //TODO: replace double slashes
     response = response[response.length - 4];
 
     if (err || stderr) {

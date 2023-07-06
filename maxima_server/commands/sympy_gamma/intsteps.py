@@ -285,10 +285,9 @@ class IntegralPrinter(object):
             self.print_rule(rule.alternatives[0])
             return
 
-        if rule.func in self.alternative_functions_printed:
+        if hasattr(rule,'func'):
             self.print_rule(rule.alternatives[0])
         else:
-            self.alternative_functions_printed.add(rule.func)
             print("There are multiple ways to do this integral.")
             for index, r in enumerate(rule.alternatives):
                     print("Method #{}".format(index + 1))
