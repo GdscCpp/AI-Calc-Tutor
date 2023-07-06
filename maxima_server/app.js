@@ -4,7 +4,7 @@ const express = require("express");
 const app = express();
 const bodyParser = require("body-parser");
 const {integrate, diff, limit } = require("./commands/maxima");
-const {integrate_w_steps } = require("./commands/sympy");
+const {integrate_w_steps, diff_w_steps } = require("./commands/sympy");
 const port = 3000;
 
 let jsonParser = bodyParser.json();
@@ -16,7 +16,11 @@ app.post("/v1/limit/", jsonParser, (req, res) => {
 //find derivatives
 //req format: {function:'string',variable:'string',depth:'int'}
 app.post("/v1/diff/", jsonParser, (req, res) => {
-  diff(req, res);
+  if (req.body.steps == true) {
+    diff_w_steps(req, res);
+  } else {
+    diff(req, res);
+  }
 });
 
 //integrate
@@ -29,7 +33,6 @@ app.post("/v1/integrate/", jsonParser, (req, res) => {
   {
     integrate(req, res);
   }
-  
 });
 
 app.listen(port, () => {
