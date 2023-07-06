@@ -3,7 +3,8 @@
 const express = require("express");
 const app = express();
 const bodyParser = require("body-parser");
-const { integrate, diff, limit } = require("./commands/maxima");
+const {integrate, diff, limit } = require("./commands/maxima");
+const {integrate_w_steps } = require("./commands/sympy");
 const port = 3000;
 
 let jsonParser = bodyParser.json();
@@ -19,9 +20,16 @@ app.post("/v1/diff/", jsonParser, (req, res) => {
 });
 
 //integrate
-//req format: {function:'string',variable:'string'}
+//req format: {function:'string',variable:'string', steps:'bool'}
 app.post("/v1/integrate/", jsonParser, (req, res) => {
-  integrate(req, res);
+  if(req.body.steps == true) 
+  {
+    integrate_w_steps(req,res)
+  } else 
+  {
+    integrate(req, res);
+  }
+  
 });
 
 app.listen(port, () => {
