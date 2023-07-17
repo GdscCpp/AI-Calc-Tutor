@@ -29,7 +29,7 @@ function integrate_w_steps(req, res) {
     res.status(200);
     console.log(timestamp + "--" + cmd);
 
-    res.send({ response: response });
+    res.send({ result: response });
   });
 }
 
@@ -99,7 +99,7 @@ function simplify(req, res) {
     res.status(200);
     console.log(timestamp + "--" + cmd);
 
-    res.send({ response: response });
+    res.send({ result: response });
   });
 }
 

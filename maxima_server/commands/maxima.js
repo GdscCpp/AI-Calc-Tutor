@@ -47,7 +47,6 @@ function limit(req, res) {
       return 500;
     }
 
-    //only care about the latex string
     let timestamp = moment().format("MM-DD-yyyy:hh:mm:ss");
     if (response.includes("incorrect syntax")) {
       res.status(400);
@@ -57,7 +56,7 @@ function limit(req, res) {
       console.log(timestamp + "--" + cmd);
     }
 
-    res.send({ response: response });
+    res.send({ result: response });
   });
 }
 
@@ -95,8 +94,7 @@ function diff(req, res) {
     //very-quiet removes almost all padding from the terminal
     ');apply(tex,[%i1]);quit();" -very-quiet';
 
-  //execute the command on windows
-  //NOTE: this needs a different module to run on linux (target os)
+  //execute the command
   exec(cmd, (err, data, stderr) => {
     //trim off unnecessary output
     let response = data.split("\n");
@@ -107,7 +105,6 @@ function diff(req, res) {
       return 500;
     }
 
-    //only care about the latex string
     let timestamp = moment().format("MM-DD-yyyy:hh:mm:ss");
     if (response.includes("incorrect syntax")) {
       res.status(400);
@@ -117,7 +114,7 @@ function diff(req, res) {
       console.log(timestamp + "--" + cmd);
     }
 
-    res.send({ response: response });
+    res.send({ result: response });
   });
 }
 
