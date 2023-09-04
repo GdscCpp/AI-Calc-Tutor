@@ -1,3 +1,4 @@
+# AI Calc Tutor
 AI Calc Tutor is a Flutter app that uses AI to tutor calculus students in high school in college. It is currently being developed by a team of developers from Google Student Developers Club, Cal Poly Pomona for Android, iOS and web.
 ## Getting Started
 - [Install Flutter](https://docs.flutter.dev/get-started/install?gclid=CjwKCAjw3dCnBhBCEiwAVvLcuzWTVR6UzS-V5jdQ3VjVKC_MOW96-F2KpPrDY035GpxTa1BdF6UPUBoCqUoQAvD_BwE&gclsrc=aw.ds)
