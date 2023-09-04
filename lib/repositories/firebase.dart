@@ -1,9 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-/// Helper functions for using Firebase. Most functions are async and require
+/// Repository functions for using Firebase. Most functions are async and require
 /// the use of await.
-class FirebaseHelpers {
+class Firebase {
   /// Returns all documents from a given [collectionName].When using this
   /// function, be sure to use await in order to get the data,
   /// otherwise an instance of '_Future<List<Object?>>' will be returned
