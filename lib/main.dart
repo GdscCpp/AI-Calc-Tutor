@@ -1,14 +1,19 @@
+import 'dart:developer';
+
+import 'package:calc_tutor/logger.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'repositories/firebase_options.dart';
 
+void main() async {
+  logger.i('Initializing Firebase...');
 
-void main() async  {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
-  options: DefaultFirebaseOptions.currentPlatform,
-);
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
 
+  logger.i('Application starting...');
   runApp(const MyApp());
 }
 
