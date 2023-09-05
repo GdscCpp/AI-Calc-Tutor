@@ -1,9 +1,7 @@
-import 'dart:developer';
-
 import 'package:calc_tutor/logger.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'repositories/firebase_options.dart';
+import './firebase_options.dart';
 
 void main() async {
   logger.i('Initializing Firebase...');
