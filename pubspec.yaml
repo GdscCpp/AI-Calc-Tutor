@@ -39,6 +39,8 @@ dependencies:
   firebase_core: ^2.14.0
   firebase_auth: ^4.6.3
   cloud_firestore: ^4.8.2
+  logger: ^2.0.2
+  intl: ^0.18.1
   
 
 dev_dependencies:

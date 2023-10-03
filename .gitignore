@@ -46,3 +46,6 @@ app.*.map.json
 # Application Security
 firebase_options.dart
 .env
+google-services.json
+
+
