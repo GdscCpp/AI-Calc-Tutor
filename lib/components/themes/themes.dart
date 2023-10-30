@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+// TODO: Extract all color values to const variables
 ThemeData mainTheme = ThemeData(
     useMaterial3: true,
     colorScheme: const ColorScheme(
@@ -37,4 +38,5 @@ ThemeData mainTheme = ThemeData(
       surfaceVariant: Color(0xff36373E),
       // SecondaryTextDark from Utility Dark
       onSurfaceVariant: Color(0xff95A1AC),
-    ));
+    ),
+    textTheme: TextTheme());
